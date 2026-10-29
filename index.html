@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>udawlk - ප්‍රජා උදව් පවුර</title>
+  <style>
+    :root {
+      --primary: #007bff;
+      --primary-hover: #0056b3;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-main: #212529;
+      --text-muted: #6c757d;
+      --danger: #dc3545;
+      --success: #28a745;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #fff;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .navbar .logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .navbar .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 760px;
+      margin: 25px auto;
+      padding: 0 15px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card-bg);
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #d0d5dd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .btn-block { width: 100%; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--primary);
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 0;
+    }
+
+    /* Status Messages */
+    .msg-box {
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-top: 10px;
+      text-align: center;
+      display: none;
+    }
+    .msg-error { background: #ffe3e6; color: var(--danger); display: block; }
+    .msg-success { background: #e3f9e5; color: var(--success); display: block; }
+    .msg-info { background: #e7f1ff; color: var(--primary); display: block; }
+
+    /* Feed & Post Card */
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 6px;
+      background: #e7f1ff;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .post-item {
+      border-bottom: 1px solid #f0f0f0;
+      padding: 16px 0;
+    }
+    .post-item:last-child { border-bottom: none; }
+    .post-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+      color: #1a1a1a;
+    }
+    .post-desc {
+      font-size: 14px;
+      color: #4a4a4a;
+      line-height: 1.5;
+      margin: 0 0 10px 0;
+      white-space: pre-line;
+    }
+    .post-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      gap: 8px;
+    }
+    .post-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="navbar">
+    <div class="logo">udawlk</div>
+    <div class="user-info" id="nav-user-info" style="display: none;">
+      <span style="font-size: 14px; font-weight: 600;" id="nav-user-name">...</span>
+      <button class="btn btn-sm btn-danger" id="logout-btn">ඉවත් වන්න</button>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <!-- AUTH SECTION -->
+    <div class="card" id="auth-card" style="max-width: 420px; margin: 30px auto;">
+      <h2 id="auth-heading" style="text-align:center; margin-top:0;">ගිණුමට ඇතුළත් වන්න</h2>
+
+      <!-- Password Reset Box -->
+      <div id="reset-view" style="display: none;">
+        <p style="font-size: 13px; color: #555;">ඔබේ ලියාපදිංචි ඊමේල් ලිපිනය ඇතුළත් කරන්න. මුරපදය reset කරගැනීමට සබැඳියක් ලැබෙනු ඇත.</p>
+        <div class="form-group">
+          <label>විද්‍යුත් තැපෑල (Email)</label>
+          <input type="email" id="reset-email" placeholder="example@mail.com">
+        </div>
+        <button class="btn btn-primary btn-block" id="send-reset-btn">Reset Link එක එවන්න</button>
+        <div style="text-align: center; margin-top: 12px;">
+          <button class="btn-link" id="back-to-login-btn">නැවත Login වෙත</button>
+        </div>
+      </div>
+
+      <!-- Main Login / Sign Up Form -->
+      <form id="auth-form">
+        <div class="form-group" id="name-group" style="display: none;">
+          <label for="reg-name">සම්පූර්ණ නම</label>
+          <input type="text" id="reg-name" placeholder="ඔබගේ සම්පූර්ණ නම">
+        </div>
+
+        <div class="form-group">
+          <label for="auth-email">විද්‍යුත් තැපෑල (Email)</label>
+          <input type="email" id="auth-email" required placeholder="example@mail.com">
+        </div>
+
+        <div class="form-group">
+          <label for="auth-password">මුරපදය (Password)</label>
+          <input type="password" id="auth-password" required placeholder="අවම අකුරු 6ක්">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="submit-auth-btn">ඇතුළත් වන්න</button>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 14px;">
+          <button type="button" class="btn-link" id="toggle-auth-btn">නව ගිණුමක් සාදන්න (Sign Up)</button>
+          <button type="button" class="btn-link" id="forgot-pass-btn">මුරපදය අමතකද?</button>
+        </div>
+      </form>
+
+      <div id="auth-msg" class="msg-box"></div>
+    </div>
+
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard" style="display: none;">
+      
+      <!-- New Post Box -->
+      <div class="card">
+        <h3 style="margin-top:0; font-size: 17px;">අලුත් උදව් ඉල්ලීමක් පළ කරන්න 🤝</h3>
+        <form id="post-form">
+          <div class="form-group">
+            <label>මාතෘකාව (Title)</label>
+            <input type="text" id="post-title" required placeholder="උදා: A/L ගණිතය පොත් කට්ටලයක් අවශ්‍යයි">
+          </div>
+          <div class="form-group">
+            <label>වර්ගය (Category)</label>
+            <select id="post-category">
+              <option value="අධ්‍යාපන">අධ්‍යාපන (Education)</option>
+              <option value="හදිසි / සෞඛ්‍ය">හදිසි / සෞඛ්‍ය (Medical/Emergency)</option>
+              <option value="තාක්ෂණික">තාක්ෂණික සහ උපදෙස් (Tech & Advice)</option>
+              <option value="ප්‍රවාහන">ප්‍රවාහන / සේවා (Transport)</option>
+              <option value="වෙනත්">වෙනත් (Other)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>විස්තරය (Description)</label>
+            <textarea id="post-desc" rows="3" required placeholder="ඔබට අවශ්‍ය උදව්ව පිළිබඳ විස්තරයක් මෙහි ලියන්න..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>දුරකථන අංකය හෝ නගරය</label>
+            <input type="text" id="post-contact" placeholder="උදා: 0771234567 / කොළඹ">
+          </div>
+          <button type="submit" class="btn btn-primary" id="create-post-btn">ඉල්ලීම පළ කරන්න</button>
+          <div id="post-msg" class="msg-box"></div>
+        </form>
+      </div>
+
+      <!-- Feed Section -->
+      <div class="card">
+        <h3 style="margin-top:0; font-size: 17px;">නවතම උදව් ඉල්ලීම් (Community Requests)</h3>
+        <div id="posts-container">
+          <p style="text-align: center; color: #888;">දැන්වීම් කියවමින් පවතී...</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      getDoc,
+      addDoc,
+      collection,
+      query,
+      orderBy,
+      onSnapshot,
+      deleteDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Firebase Configurations
+    const firebaseConfig = {
+      apiKey: "AIzaSyC81SIDS8ynvs8pCPy6xbV3uc4qznq4oiA",
+      authDomain: "udawlk.firebaseapp.com",
+      projectId: "udawlk",
+      storageBucket: "udawlk.firebasestorage.app",
+      messagingSenderId: "583502255343",
+      appId: "1:583502255343:web:4d3f01634adaf2e370b71a",
+      measurementId: "G-FKFHF7M5S4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentUserName = "පරිශීලක";
+    let isSignUp = false;
+
+    const authCard = document.getElementById('auth-card');
+    const dashboard = document.getElementById('dashboard');
+    const navUserInfo = document.getElementById('nav-user-info');
+    const navUserName = document.getElementById('nav-user-name');
+    const authForm = document.getElementById('auth-form');
+    const authHeading = document.getElementById('auth-heading');
+    const nameGroup = document.getElementById('name-group');
+    const submitAuthBtn = document.getElementById('submit-auth-btn');
+    const toggleAuthBtn = document.getElementById('toggle-auth-btn');
+    const forgotPassBtn = document.getElementById('forgot-pass-btn');
+    const resetView = document.getElementById('reset-view');
+    const backToLoginBtn = document.getElementById('back-to-login-btn');
+    const sendResetBtn = document.getElementById('send-reset-btn');
+    const authMsg = document.getElementById('auth-msg');
+    const logoutBtn = document.getElementById('logout-btn');
+    const postForm = document.getElementById('post-form');
+    const createPostBtn = document.getElementById('create-post-btn');
+    const postMsg = document.getElementById('post-msg');
+    const postsContainer = document.getElementById('posts-container');
+
+    function showMsg(el, text, type) {
+      el.className = `msg-box msg-${type}`;
+      el.innerText = text;
+      el.style.display = 'block';
+    }
+
+    function getSinhalaError(err) {
+      switch (err.code) {
+        case 'auth/email-already-in-use':
+          return 'මෙම විද්‍යුත් තැපෑල දැනටමත් භාවිතයේ පවතී.';
+        case 'auth/weak-password':
+          return 'මුරපදය දුර්වලයි (අවම වශයෙන් අකුරු 6ක් යොදන්න).';
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          return 'විද්‍යුත් තැපෑල හෝ මුරපදය වැරදිය.';
+        case 'auth/invalid-email':
+          return 'වලංගු ඊමේල් ලිපිනයක් ඇතුළත් කරන්න.';
+        default:
+          return 'දෝෂයක් සිදුවිය: ' + err.message;
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        authCard.style.display = 'none';
+        dashboard.style.display = 'block';
+        navUserInfo.style.display = 'flex';
+
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists() && userDoc.data().name) {
+            currentUserName = userDoc.data().name;
+          } else {
+            currentUserName = user.email.split('@')[0];
+          }
+        } catch {
+          currentUserName = "පරිශීලක";
+        }
+        navUserName.innerText = currentUserName;
+        listenForPosts();
+      } else {
+        currentUser = null;
+        authCard.style.display = 'block';
+        dashboard.style.display = 'none';
+        navUserInfo.style.display = 'none';
+      }
+    });
+
+    toggleAuthBtn.addEventListener('click', () => {
+      isSignUp = !isSignUp;
+      authMsg.style.display = 'none';
+      if (isSignUp) {
+        authHeading.innerText = "නව ගිණුමක් සාදන්න";
+        nameGroup.style.display = 'block';
+        submitAuthBtn.innerText = "ගිණුම සාදන්න";
+        toggleAuthBtn.innerText = "දැනටමත් ගිණුමක් තිබේද? Login වන්න";
+        forgotPassBtn.style.display = 'none';
+      } else {
+        authHeading.innerText = "ගිණුමට ඇතුළත් වන්න";
+        nameGroup.style.display = 'none';
+        submitAuthBtn.innerText = "ඇතුළත් වන්න";
+        toggleAuthBtn.innerText = "නව ගිණුමක් සාදන්න (Sign Up)";
+        forgotPassBtn.style.display = 'inline';
+      }
+    });
+
+    forgotPassBtn.addEventListener('click', () => {
+      authForm.style.display = 'none';
+      resetView.style.display = 'block';
+      authHeading.innerText = "මුරපදය නැවත සකසන්න";
+      authMsg.style.display = 'none';
+    });
+
+    backToLoginBtn.addEventListener('click', () => {
+      resetView.style.display = 'none';
+      authForm.style.display = 'block';
+      authHeading.innerText = "ගිණුමට ඇතුළත් වන්න";
+      authMsg.style.display = 'none';
+    });
+
+    sendResetBtn.addEventListener('click', async () => {
+      const email = document.getElementById('reset-email').value.trim();
+      if (!email) {
+        showMsg(authMsg, "කරුණාකර ඊමේල් ලිපිනය ඇතුළත් කරන්න.", "error");
+        return;
+      }
+      sendResetBtn.disabled = true;
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showMsg(authMsg, "Reset ලින්ක් එක ඊමේල් පණිවිඩයක් ලෙස එවන ලදි.", "success");
+      } catch (err) {
+        showMsg(authMsg, getSinhalaError(err), "error");
+      } finally {
+        sendResetBtn.disabled = false;
+      }
+    });
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value.trim();
+      const name = document.getElementById('reg-name').value.trim();
+
+      submitAuthBtn.disabled = true;
+      showMsg(authMsg, "මදක් රැඳී සිටින්න...", "info");
+
+      try {
+        if (isSignUp) {
+          if (!name) throw new Error("කරුණාකර ඔබගේ නම ඇතුළත් කරන්න.");
+          const res = await createUserWithEmailAndPassword(auth, email, password);
+          await setDoc(doc(db, "users", res.user.uid), {
+            name: name,
+            email: email,
+            createdAt: new Date().toISOString()
+          });
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+        }
+      } catch (err) {
+        showMsg(authMsg, getSinhalaError(err), "error");
+        submitAuthBtn.disabled = false;
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => signOut(auth));
+
+    postForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const title = document.getElementById('post-title').value.trim();
+      const category = document.getElementById('post-category').value;
+      const desc = document.getElementById('post-desc').value.trim();
+      const contact = document.getElementById('post-contact').value.trim();
+
+      createPostBtn.disabled = true;
+      showMsg(postMsg, "දැන්වීම පළ කරමින් පවතී...", "info");
+
+      try {
+        await addDoc(collection(db, "requests"), {
+          title,
+          category,
+          desc,
+          contact: contact || "සඳහන් කර නැත",
+          authorId: currentUser.uid,
+          authorName: currentUserName,
+          createdAt: serverTimestamp()
+        });
+
+        postForm.reset();
+        showMsg(postMsg, "ඔබේ ඉල්ලීම සාර්ථකව පළ කරන ලදි!", "success");
+        setTimeout(() => { postMsg.style.display = 'none'; }, 3000);
+      } catch (err) {
+        showMsg(postMsg, "දෝෂයක් සිදුවිය: " + err.message, "error");
+      } finally {
+        createPostBtn.disabled = false;
+      }
+    });
+
+    function listenForPosts() {
+      const q = query(collection(db, "requests"), orderBy("createdAt", "desc"));
+
+      onSnapshot(q, (snapshot) => {
+        postsContainer.innerHTML = "";
+
+        if (snapshot.empty) {
+          postsContainer.innerHTML = '<p style="text-align:center; color:#999;">තවමත් කිසිදු උදව් ඉල්ලීමක් පළ කර නැත.</p>';
+          return;
+        }
+
+        snapshot.forEach((docItem) => {
+          const post = docItem.data();
+          const postId = docItem.id;
+          const isOwner = currentUser && (currentUser.uid === post.authorId);
+
+          const postEl = document.createElement('div');
+          postEl.className = 'post-item';
+
+          postEl.innerHTML = `
+            <span class="badge">${post.category || 'උදව්'}</span>
+            <h4 class="post-title">${escapeHTML(post.title)}</h4>
+            <p class="post-desc">${escapeHTML(post.desc)}</p>
+            <div class="post-meta">
+              <span>👤 ${escapeHTML(post.authorName || 'පරිශීලක')} | 📞 ${escapeHTML(post.contact)}</span>
+              <div class="post-actions">
+                ${isOwner ? `<button class="btn btn-sm btn-danger delete-btn" data-id="${postId}">මකන්න (Delete)</button>` : ''}
+              </div>
+            </div>
+          `;
+          postsContainer.appendChild(postEl);
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.target.getAttribute('data-id');
+            if (confirm("මෙම ඉල්ලීම මකා දැමීමට අවශ්‍යද?")) {
+              await deleteDoc(doc(db, "requests", id));
+            }
+          });
+        });
+
+      }, (err) => {
+        postsContainer.innerHTML = '<p style="color:red; text-align:center;">දත්ත ලබාගැනීමට නොහැකි විය: ' + err.message + '</p>';
+      });
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+  </script>
+</body>
+</html>
